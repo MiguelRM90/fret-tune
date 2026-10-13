@@ -1,7 +1,7 @@
-import { Injectable, computed, effect, inject, signal, OnDestroy } from '@angular/core';
+import { OnDestroy, Service, computed, effect, inject, signal } from '@angular/core';
+import { midiToFrequency, resolveReading } from '../audio';
 import { IN_TUNE_LOCK_MS } from '../constants';
 import { TunerReading } from '../models';
-import { resolveReading, midiToFrequency } from '../audio';
 import { AudioInputService } from './audio-input.service';
 import { HapticsService } from './haptics.service';
 import { PitchDetectionService } from './pitch-detection.service';
@@ -9,9 +9,7 @@ import { SettingsStore } from './settings.store';
 import { ToneGeneratorService } from './tone-generator.service';
 import { WakeLockService } from './wake-lock.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class TunerStore implements OnDestroy {
   readonly audioInput = inject(AudioInputService);
   readonly pitchDetection = inject(PitchDetectionService);

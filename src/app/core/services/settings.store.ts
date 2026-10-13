@@ -1,4 +1,4 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Service, computed, effect, signal } from '@angular/core';
 import { SETTINGS_STORAGE_KEY, findInstrument } from '../constants';
 import {
   DisplayStyle,
@@ -12,9 +12,7 @@ import {
 } from '../models';
 import { parseSettings } from '../utils';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class SettingsStore {
   readonly settings = signal<TunerSettings>(this.loadInitialSettings());
 

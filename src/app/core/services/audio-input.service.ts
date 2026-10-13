@@ -1,9 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import { FrameSource, MicrophoneStatus } from '../models';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class AudioInputService implements FrameSource {
   readonly status = signal<MicrophoneStatus>('idle');
   readonly errorMessage = signal<string | null>(null);
@@ -11,10 +9,11 @@ export class AudioInputService implements FrameSource {
   private audioContext: AudioContext | null = null;
   private mediaStream: MediaStream | null = null;
   private sourceNode: MediaStreamAudioSourceNode | null = null;
-  private processorNode: ScriptProcessorNode | null = null;
+  private workletNode: AudioWorkletNode | null = null;
+  private muteGainNode: GainNode | null = null;
+  private currentFrameSize = 4096;
   private ringBuffer = new Float32Array(0);
   private writePointer = 0;
-  private currentFrameSize = 4096;
 
   get sampleRate(): number {
     return this.audioContext?.sampleRate ?? 44100;
@@ -25,7 +24,7 @@ export class AudioInputService implements FrameSource {
   }
 
   setFrameSize(size: number): void {
-    if (size !== this.currentFrameSize) {
+    if (size !== this.currentFrameSize || this.ringBuffer.length !== size) {
       this.currentFrameSize = size;
       this.ringBuffer = new Float32Array(size);
       this.writePointer = 0;
@@ -37,7 +36,7 @@ export class AudioInputService implements FrameSource {
       return true;
     }
 
-    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia || typeof window === 'undefined') {
       this.status.set('unsupported');
       this.errorMessage.set('Microphone access is not supported by this browser.');
       return false;
@@ -46,7 +45,19 @@ export class AudioInputService implements FrameSource {
     this.status.set('requesting');
     this.errorMessage.set(null);
 
+    let context: AudioContext | null = null;
+
     try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      context = new AudioCtx();
+
+      if (!context.audioWorklet) {
+        this.status.set('unsupported');
+        this.errorMessage.set('AudioWorklet is not supported by this browser.');
+        context.close().catch(() => {});
+        return false;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
@@ -55,32 +66,43 @@ export class AudioInputService implements FrameSource {
         },
       });
 
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const context = new AudioCtx();
       if (context.state === 'suspended') {
         await context.resume();
       }
+
+      const processorUrl = typeof document !== 'undefined'
+        ? new URL('audio-input-processor.js', document.baseURI).href
+        : 'audio-input-processor.js';
+
+      await context.audioWorklet.addModule(processorUrl);
 
       this.audioContext = context;
       this.mediaStream = stream;
       this.setFrameSize(this.currentFrameSize);
 
       const source = context.createMediaStreamSource(stream);
-      const processor = context.createScriptProcessor(2048, 1, 1);
+      const worklet = new AudioWorkletNode(context, 'audio-input-processor');
 
-      processor.onaudioprocess = (event: AudioProcessingEvent) => {
-        const input = event.inputBuffer.getChannelData(0);
-        this.appendSamples(input);
+      worklet.port.onmessage = (event: MessageEvent<Float32Array>) => {
+        this.appendSamples(event.data);
       };
 
-      source.connect(processor);
-      processor.connect(context.destination);
+      const muteGain = context.createGain();
+      muteGain.gain.setValueAtTime(0, context.currentTime);
+
+      source.connect(worklet);
+      worklet.connect(muteGain);
+      muteGain.connect(context.destination);
 
       this.sourceNode = source;
-      this.processorNode = processor;
+      this.workletNode = worklet;
+      this.muteGainNode = muteGain;
       this.status.set('active');
       return true;
     } catch (err) {
+      if (context) {
+        context.close().catch(() => {});
+      }
       const isDenied = err instanceof DOMException && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
       this.status.set(isDenied ? 'denied' : 'error');
       this.errorMessage.set(isDenied ? 'Microphone permission was denied.' : 'Unable to access microphone.');
@@ -89,10 +111,15 @@ export class AudioInputService implements FrameSource {
   }
 
   stop(): void {
-    if (this.processorNode) {
-      this.processorNode.onaudioprocess = null;
-      this.processorNode.disconnect();
-      this.processorNode = null;
+    if (this.workletNode) {
+      this.workletNode.port.onmessage = null;
+      this.workletNode.disconnect();
+      this.workletNode = null;
+    }
+
+    if (this.muteGainNode) {
+      this.muteGainNode.disconnect();
+      this.muteGainNode = null;
     }
 
     if (this.sourceNode) {
@@ -112,7 +139,7 @@ export class AudioInputService implements FrameSource {
       this.audioContext = null;
     }
 
-    this.ringBuffer = new Float32Array(this.currentFrameSize);
+    this.ringBuffer = new Float32Array(0);
     this.writePointer = 0;
     this.status.set('idle');
   }

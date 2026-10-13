@@ -1,8 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class HapticsService {
   vibrate(pattern: number | number[] = 25): void {
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {

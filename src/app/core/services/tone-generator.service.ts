@@ -1,8 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ToneGeneratorService {
   readonly isPlaying = signal<boolean>(false);
   readonly playingMidi = signal<number | null>(null);

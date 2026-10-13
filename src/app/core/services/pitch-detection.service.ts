@@ -1,12 +1,10 @@
-import { Injectable, inject, signal, OnDestroy } from '@angular/core';
+import { OnDestroy, Service, inject, signal } from '@angular/core';
+import { McLeodPitchDetector, PitchSmoother } from '../audio';
 import { DETECTION_TUNING, SMOOTHING } from '../constants';
 import { FrequencyRange, PitchEstimate } from '../models';
-import { McLeodPitchDetector, PitchSmoother } from '../audio';
 import { AudioInputService } from './audio-input.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class PitchDetectionService implements OnDestroy {
   private readonly audioInput = inject(AudioInputService);
 
