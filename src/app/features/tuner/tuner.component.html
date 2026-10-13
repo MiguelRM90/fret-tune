@@ -1,0 +1,99 @@
+<div class="tuner-view">
+  @if (!tunerStore.isListening()) {
+    <div class="pwa-card tuner-card tuner-card--mic">
+      <app-mic-permission
+        [status]="tunerStore.micStatus()"
+        [errorMessage]="tunerStore.micError()"
+        (requestAccess)="onStartListening()"
+      ></app-mic-permission>
+    </div>
+  } @else {
+    <!-- Quick Controls Toolbar -->
+    <div class="tuner-toolbar">
+      <div class="toolbar-group">
+        <button
+          type="button"
+          class="pwa-btn pwa-btn--chip"
+          [class.pwa-btn--primary]="settingsStore.mode() === 'instrument'"
+          (click)="onToggleMode()"
+          title="Toggle between guided strings and chromatic mode"
+        >
+          {{ settingsStore.mode() === 'instrument' ? '🎯 Guided' : '🌈 Chromatic' }}
+        </button>
+
+        <button
+          type="button"
+          class="pwa-btn pwa-btn--chip"
+          (click)="onToggleDisplayStyle()"
+          title="Switch between Needle Gauge and Digital Strobe"
+        >
+          {{ settingsStore.displayStyle() === 'needle' ? '⚡ Strobe' : '🎯 Needle' }}
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button
+          type="button"
+          class="pwa-btn pwa-btn--soft pwa-btn--sm"
+          (click)="openSettings.emit()"
+          title="Change tuning or calibrate"
+        >
+          {{ settingsStore.tuning().name }} ({{ settingsStore.referencePitch() }}Hz)
+        </button>
+
+        <button
+          type="button"
+          class="pwa-btn pwa-btn--ghost pwa-btn--icon"
+          (click)="onToggleListening()"
+          title="Pause microphone"
+          aria-label="Pause tuning"
+        >
+          ⏸️
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Visualizer Card -->
+    <div
+      class="pwa-card tuner-card tuner-card--visualizer"
+      [class.tuner-card--in-tune]="tunerStore.isInTune()"
+    >
+      <app-note-display
+        [reading]="tunerStore.reading()"
+        [notation]="settingsStore.notation()"
+        [isInTune]="tunerStore.isInTune()"
+      ></app-note-display>
+
+      @if (settingsStore.displayStyle() === 'needle') {
+        <app-needle-gauge
+          [reading]="tunerStore.reading()"
+          [isInTune]="tunerStore.isInTune()"
+          [tolerance]="settingsStore.tolerance()"
+        ></app-needle-gauge>
+      } @else {
+        <app-strobe-display
+          [reading]="tunerStore.reading()"
+          [isInTune]="tunerStore.isInTune()"
+        ></app-strobe-display>
+      }
+    </div>
+
+    <!-- Guided Strings Checklist Card (when in Guided mode) -->
+    @if (settingsStore.mode() === 'instrument') {
+      <div class="pwa-card tuner-card tuner-card--strings">
+        <app-string-selector
+          [tuning]="settingsStore.tuning()"
+          [notation]="settingsStore.notation()"
+          [reading]="tunerStore.reading()"
+          [lockedString]="tunerStore.lockedString()"
+          [tunedStrings]="tunerStore.tunedStrings()"
+          [playingMidi]="tunerStore.toneGenerator.playingMidi()"
+          (selectString)="onSelectString($event)"
+          (playTone)="onPlayTone($event)"
+          (resetChecklist)="onResetChecklist()"
+        ></app-string-selector>
+      </div>
+    }
+  }
+</div>
+

@@ -1,0 +1,37 @@
+{
+  "name": "fret-tune",
+  "version": "1.0.0",
+  "description": "Precision chromatic tuner PWA for guitar, bass and ukulele",
+  "author": "MiguelRM90",
+  "license": "MIT",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build --configuration production",
+    "build:gh-pages": "ng build --configuration production --base-href /fret-tune/",
+    "watch": "ng build --watch --configuration development",
+    "test": "esbuild \"src/**/*.spec.ts\" --outdir=dist/test-dist --bundle --platform=node --format=esm --packages=external --out-extension:.js=.mjs --log-level=warning && node --test \"dist/test-dist/**/*.spec.mjs\""
+  },
+  "dependencies": {
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/service-worker": "^22.2.0",
+    "pwa-ui-core": "file:../pwa-ui-core",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.0",
+    "@angular/cli": "^22.2.0",
+    "@angular/compiler-cli": "^22.2.0",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "~6.0.2"
+  }
+}
+

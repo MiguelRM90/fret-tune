@@ -1,0 +1,17 @@
+<div class="strobe-container" [class.strobe-container--in-tune]="isInTune()">
+  <div class="strobe-header">
+    <span class="strobe-drift-hint">◄ Flat (Rolls Left)</span>
+    <span class="strobe-badge">{{ isInTune() ? 'PHASE LOCKED' : 'STROBE PATTERN' }}</span>
+    <span class="strobe-drift-hint">Sharp (Rolls Right) ►</span>
+  </div>
+
+  <div class="strobe-viewport">
+    <canvas #strobeCanvas width="320" height="96" class="strobe-canvas"></canvas>
+    <div class="strobe-reticle"></div>
+  </div>
+
+  <p class="strobe-helper">
+    {{ isInTune() ? 'Pattern stationary — in perfect tune' : 'Adjust until bands stop moving' }}
+  </p>
+</div>
+

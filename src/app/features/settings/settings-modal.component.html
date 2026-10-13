@@ -1,0 +1,186 @@
+<pwa-modal
+  [isOpen]="isOpen()"
+  title="Tuner Settings"
+  subtitle="Configure instrument, calibration, and visual preferences"
+  maxWidth="32rem"
+  (close)="close.emit()"
+>
+  <div class="settings-body">
+    <!-- Instrument Selection -->
+    <div class="settings-section">
+      <label class="pwa-label">Instrument</label>
+      <div class="pill-group">
+        @for (inst of instruments; track inst.id) {
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="settingsStore.instrument().id === inst.id"
+            (click)="onInstrumentSelect(inst.id)"
+          >
+            {{ inst.name }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Tuning Preset -->
+    <div class="settings-section">
+      <label class="pwa-label">Tuning Preset</label>
+      <div class="pwa-input-group">
+        <select
+          class="pwa-select"
+          [ngModel]="settingsStore.tuning().id"
+          (ngModelChange)="onTuningSelect($event)"
+        >
+          @for (tuning of settingsStore.instrument().tunings; track tuning.id) {
+            <option [value]="tuning.id">{{ tuning.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Tuning Mode -->
+    <div class="settings-section">
+      <label class="pwa-label">Tuning Mode</label>
+      <div class="pill-group">
+        <button
+          type="button"
+          class="pill-btn"
+          [class.pill-btn--active]="settingsStore.mode() === 'instrument'"
+          (click)="onModeSelect('instrument')"
+        >
+          Guided Strings
+        </button>
+        <button
+          type="button"
+          class="pill-btn"
+          [class.pill-btn--active]="settingsStore.mode() === 'chromatic'"
+          (click)="onModeSelect('chromatic')"
+        >
+          Chromatic (Any Note)
+        </button>
+      </div>
+    </div>
+
+    <!-- Display Style: Needle vs Strobe -->
+    <div class="settings-section">
+      <label class="pwa-label">Display Style</label>
+      <div class="pill-group">
+        <button
+          type="button"
+          class="pill-btn"
+          [class.pill-btn--active]="settingsStore.displayStyle() === 'needle'"
+          (click)="onDisplayStyleSelect('needle')"
+        >
+          🎯 Needle Gauge
+        </button>
+        <button
+          type="button"
+          class="pill-btn"
+          [class.pill-btn--active]="settingsStore.displayStyle() === 'strobe'"
+          (click)="onDisplayStyleSelect('strobe')"
+        >
+          ⚡ Digital Strobe
+        </button>
+      </div>
+    </div>
+
+    <!-- Note Notation: Letters vs Solfège -->
+    <div class="settings-section">
+      <label class="pwa-label">Note Notation</label>
+      <div class="pill-group">
+        <button
+          type="button"
+          class="pill-btn"
+          [class.pill-btn--active]="settingsStore.notation() === 'letter'"
+          (click)="onNotationSelect('letter')"
+        >
+          C • D • E (Letters)
+        </button>
+        <button
+          type="button"
+          class="pill-btn"
+          [class.pill-btn--active]="settingsStore.notation() === 'solfege'"
+          (click)="onNotationSelect('solfege')"
+        >
+          Do • Re • Mi (Solfège)
+        </button>
+      </div>
+    </div>
+
+    <!-- Reference Pitch Calibration (A4 = 440 Hz) -->
+    <div class="settings-section">
+      <pwa-numeric-slider
+        label="Reference Pitch (A4)"
+        [value]="settingsStore.referencePitch()"
+        [min]="referencePitchRange.min"
+        [max]="referencePitchRange.max"
+        [step]="1"
+        unit="Hz"
+        hint="Standard concert pitch is 440 Hz"
+        (valueChange)="onReferencePitchChange($event)"
+      ></pwa-numeric-slider>
+    </div>
+
+    <!-- In-Tune Tolerance -->
+    <div class="settings-section">
+      <label class="pwa-label">Tolerance Window</label>
+      <div class="pill-group">
+        @for (tol of toleranceOptions; track tol) {
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="settingsStore.tolerance() === tol"
+            (click)="onToleranceSelect(tol)"
+          >
+            ±{{ tol }} ¢ {{ tol === 2 ? '(Strict)' : tol === 5 ? '(Normal)' : '(Relaxed)' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Extras: Haptics & Wake Lock -->
+    <div class="settings-section settings-section--toggles">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-title">Haptic Feedback</span>
+          <span class="toggle-desc">Vibrate device briefly when note is locked in tune</span>
+        </div>
+        <button
+          type="button"
+          class="toggle-switch"
+          [class.toggle-switch--on]="settingsStore.hapticsEnabled()"
+          (click)="toggleHaptics()"
+          role="switch"
+          [attr.aria-checked]="settingsStore.hapticsEnabled()"
+        >
+          <span class="toggle-switch__thumb"></span>
+        </button>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-title">Keep Screen Awake</span>
+          <span class="toggle-desc">Prevent phone screen from sleeping while tuning</span>
+        </div>
+        <button
+          type="button"
+          class="toggle-switch"
+          [class.toggle-switch--on]="settingsStore.keepAwake()"
+          (click)="toggleKeepAwake()"
+          role="switch"
+          [attr.aria-checked]="settingsStore.keepAwake()"
+        >
+          <span class="toggle-switch__thumb"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="pwa-btn pwa-btn--primary" (click)="close.emit()">
+      Done
+    </button>
+  </div>
+</pwa-modal>
+

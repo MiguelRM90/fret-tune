@@ -1,0 +1,22 @@
+<div class="app-layout">
+  <app-header (openSettings)="isSettingsOpen.set(true)"></app-header>
+
+  <main class="app-main pwa-container">
+    <app-tuner (openSettings)="isSettingsOpen.set(true)"></app-tuner>
+  </main>
+
+  <footer class="app-footer">
+    <div class="pwa-container footer-content">
+      <span>FretTune PWA • Open Source Precision Tuner</span>
+      <span>100% Offline • Private & Local</span>
+    </div>
+  </footer>
+
+  <app-settings-modal
+    [isOpen]="isSettingsOpen()"
+    (close)="isSettingsOpen.set(false)"
+  ></app-settings-modal>
+
+  <pwa-toast-container></pwa-toast-container>
+</div>
+

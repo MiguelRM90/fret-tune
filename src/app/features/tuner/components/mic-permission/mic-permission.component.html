@@ -1,0 +1,51 @@
+<div class="mic-permission">
+  <div class="mic-permission__icon-box">
+    @if (status() === 'requesting') {
+      <div class="pwa-animate-spin mic-spinner"></div>
+    } @else if (status() === 'denied' || status() === 'error') {
+      <span class="mic-icon mic-icon--warn">⚠️</span>
+    } @else {
+      <span class="mic-icon">🎙️</span>
+    }
+  </div>
+
+  <h2 class="mic-permission__title">
+    @if (status() === 'requesting') {
+      Connecting to microphone...
+    } @else if (status() === 'denied') {
+      Microphone permission required
+    } @else if (status() === 'error') {
+      Audio input error
+    } @else {
+      Ready to Tune
+    }
+  </h2>
+
+  <p class="mic-permission__description">
+    @if (status() === 'denied') {
+      Please allow microphone access in your browser site settings to detect your instrument's pitch.
+    } @else if (status() === 'error') {
+      {{ errorMessage() || 'Failed to initialize the audio stream. Please reconnect your microphone.' }}
+    } @else {
+      FretTune analyzes your instrument's sound locally on your device in real time. Zero audio data ever leaves your device.
+    }
+  </p>
+
+  <div class="mic-permission__actions">
+    <button
+      type="button"
+      class="pwa-btn pwa-btn--primary pwa-btn--lg pwa-tactile"
+      [disabled]="status() === 'requesting'"
+      (click)="requestAccess.emit()"
+    >
+      @if (status() === 'requesting') {
+        Starting...
+      } @else if (status() === 'denied' || status() === 'error') {
+        Try Again
+      } @else {
+        Start Tuning 🎸
+      }
+    </button>
+  </div>
+</div>
+

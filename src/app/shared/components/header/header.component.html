@@ -1,0 +1,62 @@
+<pwa-header
+  title="FretTune"
+  [subtitle]="settingsStore.instrument().name + ' • ' + settingsStore.tuning().name"
+  badgeText="Offline"
+  [showNetworkStatus]="false"
+  [showInstallButton]="true"
+>
+  <div header-logo class="header-logo" aria-hidden="true">
+    <svg class="header-logo__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor">
+      <path
+        d="M16 3C10 3 6 8 6 15C6 23 12 28.5 16 29C20 28.5 26 23 26 15C26 8 22 3 16 3Z"
+        fill="url(#pickGradient)"
+        stroke="var(--pwa-brand-500)"
+        stroke-width="1.5"
+      />
+      <circle cx="16" cy="14" r="3.5" fill="#0f172a" stroke="var(--pwa-brand-500)" stroke-width="1.2" />
+      <path d="M16 8V10.5M16 17.5V23" stroke="var(--pwa-brand-text)" stroke-width="1.5" stroke-linecap="round" />
+      <defs>
+        <linearGradient id="pickGradient" x1="6" y1="3" x2="26" y2="29" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#10b981" stop-opacity="0.25" />
+          <stop offset="1" stop-color="#047857" stop-opacity="0.1" />
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <div header-actions class="header-actions">
+    <button
+      type="button"
+      class="pwa-btn pwa-btn--ghost pwa-btn--icon"
+      (click)="toggleTheme()"
+      [title]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+      aria-label="Toggle visual theme"
+    >
+      @if (themeService.isDark()) {
+        <svg class="header-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="round" />
+        </svg>
+      } @else {
+        <svg class="header-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="pwa-btn pwa-btn--secondary pwa-btn--sm"
+      (click)="openSettings.emit()"
+      title="Open settings"
+      aria-label="Settings"
+    >
+      <svg class="header-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+      <span class="settings-btn-text">Settings</span>
+    </button>
+  </div>
+</pwa-header>
+

@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.strobe-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.strobe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: var(--pwa-text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--pwa-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.strobe-badge {
+  color: var(--pwa-brand-text);
+  letter-spacing: 0.05em;
+}
+
+.strobe-container--in-tune .strobe-badge {
+  color: #10b981;
+}
+
+.strobe-drift-hint {
+  font-size: 0.625rem;
+}
+
+.strobe-viewport {
+  position: relative;
+  width: 100%;
+  height: 6rem;
+  border-radius: var(--pwa-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--pwa-border);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
+  background: var(--pwa-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.strobe-container--in-tune .strobe-viewport {
+  border-color: #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), inset 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.strobe-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.strobe-reticle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+.strobe-container--in-tune .strobe-reticle {
+  background-color: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.strobe-helper {
+  margin: 0.5rem 0 0 0;
+  font-size: var(--pwa-text-xs);
+  color: var(--pwa-text-secondary);
+  font-weight: 500;
+  text-align: center;
+}
+

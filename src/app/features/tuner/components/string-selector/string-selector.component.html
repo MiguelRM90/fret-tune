@@ -1,0 +1,68 @@
+<div class="string-selector">
+  <div class="string-selector__header">
+    <div class="string-selector__title-box">
+      <span class="string-selector__title">Strings</span>
+      @if (lockedString() !== null) {
+        <span class="pwa-badge pwa-badge--warning">Locked</span>
+      } @else {
+        <span class="pwa-badge pwa-badge--info">Auto Detect</span>
+      }
+    </div>
+
+    @if (allTuned()) {
+      <span class="pwa-badge pwa-badge--success">All In Tune! 🎉</span>
+    }
+
+    <button
+      type="button"
+      class="pwa-btn pwa-btn--ghost pwa-btn--sm reset-btn"
+      (click)="resetChecklist.emit()"
+      title="Reset tuned checkmarks"
+      aria-label="Reset checklist"
+    >
+      Reset ✓
+    </button>
+  </div>
+
+  <div class="string-grid">
+    @for (str of stringItems(); track str.index) {
+      <button
+        type="button"
+        class="string-card"
+        [class.string-card--detected]="str.isDetected"
+        [class.string-card--locked]="str.isLocked"
+        [class.string-card--tuned]="str.isTuned"
+        [class.string-card--playing]="str.isPlaying"
+        (click)="onStringClick(str.index)"
+        [title]="'String ' + str.number + ': ' + (str.midi | noteName:notation():true) + (str.isLocked ? ' (Click to unlock)' : ' (Click to lock)')"
+      >
+        <div class="string-card__top">
+          <span class="string-num">{{ str.number }}</span>
+          @if (str.isTuned) {
+            <span class="string-check" title="Tuned">✓</span>
+          }
+        </div>
+
+        <div class="string-card__note">
+          <span class="note-name">{{ str.midi | noteName:notation():true }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="string-tone-btn"
+          [class.string-tone-btn--active]="str.isPlaying"
+          (click)="onPlayToneClick($event, str.index)"
+          [title]="'Listen to ' + (str.midi | noteName:notation():true) + ' reference tone'"
+          aria-label="Play reference pitch"
+        >
+          @if (str.isPlaying) {
+            <span class="tone-wave">🔊</span>
+          } @else {
+            <span class="tone-icon">🔈</span>
+          }
+        </button>
+      </button>
+    }
+  </div>
+</div>
+

@@ -1,0 +1,24 @@
+@import "pwa-ui-core/styles";
+
+:root {
+  --pwa-brand-500: #10b981;
+  --pwa-brand-600: #059669;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--pwa-font-sans);
+  background-color: var(--pwa-bg-canvas);
+  color: var(--pwa-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+

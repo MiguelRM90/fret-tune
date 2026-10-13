@@ -1,0 +1,48 @@
+<div class="note-display" [class.note-display--in-tune]="isInTune()">
+  <div class="note-hero">
+    @if (noteInfo(); as note) {
+      <div class="note-main">
+        <span class="note-letter">{{ note.name }}</span>
+        @if (note.accidental) {
+          <span class="note-accidental">{{ note.accidental }}</span>
+        }
+        <span class="note-octave">{{ note.octave }}</span>
+      </div>
+      <div class="note-alt-name">
+        <span>{{ altNoteName() }}</span>
+      </div>
+    } @else {
+      <div class="note-main note-main--idle">
+        <span class="note-letter">—</span>
+      </div>
+      <div class="note-alt-name">
+        <span>Play a string...</span>
+      </div>
+    }
+  </div>
+
+  <div class="note-metrics">
+    @if (reading(); as r) {
+      <div class="metric-pill" [class.metric-pill--in-tune]="isInTune()">
+        <span class="metric-pill__label">Offset</span>
+        <span class="metric-pill__value">{{ r.cents | cents }} ¢</span>
+      </div>
+
+      <div class="metric-pill">
+        <span class="metric-pill__label">Detected</span>
+        <span class="metric-pill__value">{{ r.frequency.toFixed(1) }} Hz</span>
+      </div>
+
+      <div class="metric-pill">
+        <span class="metric-pill__label">Target</span>
+        <span class="metric-pill__value">{{ r.targetFrequency.toFixed(1) }} Hz</span>
+      </div>
+    } @else {
+      <div class="metric-pill metric-pill--placeholder">
+        <span class="metric-pill__label">Status</span>
+        <span class="metric-pill__value">Listening</span>
+      </div>
+    }
+  </div>
+</div>
+

@@ -1,0 +1,25 @@
+# Angular
+/dist/
+/out-tsc/
+/tmp/
+/coverage/
+/.angular/
+.angular/
+
+# Dependencies
+/node_modules/
+
+# Environment
+/.env
+
+# Editors
+.idea/
+.DS_Store
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+
