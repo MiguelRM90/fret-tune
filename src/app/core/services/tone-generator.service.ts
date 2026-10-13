@@ -1,7 +1,8 @@
-import { Service, signal } from '@angular/core';
+import { OnDestroy, Service, signal } from '@angular/core';
+import { REFERENCE_TONE_DURATION_MS } from '../constants';
 
 @Service()
-export class ToneGeneratorService {
+export class ToneGeneratorService implements OnDestroy {
   readonly isPlaying = signal<boolean>(false);
   readonly playingMidi = signal<number | null>(null);
 
@@ -10,7 +11,15 @@ export class ToneGeneratorService {
   private currentGain: GainNode | null = null;
   private stopTimer: ReturnType<typeof setTimeout> | null = null;
 
-  play(frequency: number, midi?: number, durationMs = 2000): void {
+  ngOnDestroy(): void {
+    this.stop();
+    if (this.audioContext) {
+      this.audioContext.close().catch(() => {});
+      this.audioContext = null;
+    }
+  }
+
+  play(frequency: number, midi?: number, durationMs = REFERENCE_TONE_DURATION_MS): void {
     this.stop();
 
     try {

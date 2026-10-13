@@ -18,6 +18,7 @@ export interface PitchDetectionRequest {
 
 export interface PitchDetectionResponse {
   readonly estimate: PitchEstimate | null;
+  readonly buffer?: ArrayBuffer;
 }
 
 export type TuneDirection = 'flat' | 'sharp' | 'in-tune';

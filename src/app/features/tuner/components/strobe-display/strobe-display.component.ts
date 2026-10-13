@@ -4,18 +4,15 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
-  computed,
-  inject,
   input,
   viewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TunerReading } from '../../../../core/models';
 
 @Component({
   selector: 'app-strobe-display',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './strobe-display.component.html',
   styleUrl: './strobe-display.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,14 +74,16 @@ export class StrobeDisplayComponent implements OnInit, OnDestroy {
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    const activeColor = inTune ? '#10b981' : r ? '#38bdf8' : '#475569';
-    const darkColor = inTune ? 'rgba(16, 185, 129, 0.12)' : 'rgba(15, 23, 42, 0.4)';
+    const style = getComputedStyle(canvas);
+    const brandColor = style.getPropertyValue('--pwa-brand-500').trim() || '#10b981';
+    const activeColor = inTune ? brandColor : r ? (style.getPropertyValue('--pwa-brand-text').trim() || '#38bdf8') : (style.getPropertyValue('--pwa-slate-600').trim() || '#475569');
+    const darkColor = inTune ? 'color-mix(in srgb, ' + brandColor + ' 12%, transparent)' : 'rgba(15, 23, 42, 0.4)';
 
     this.drawStrobeBand(ctx, 0, h * 0.32, 20, this.phase1, activeColor, darkColor, w);
     this.drawStrobeBand(ctx, h * 0.34, h * 0.32, 40, this.phase2, activeColor, darkColor, w);
     this.drawStrobeBand(ctx, h * 0.68, h * 0.32, 80, this.phase3, activeColor, darkColor, w);
 
-    ctx.strokeStyle = inTune ? '#10b981' : 'rgba(255, 255, 255, 0.4)';
+    ctx.strokeStyle = inTune ? brandColor : 'rgba(255, 255, 255, 0.4)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(w / 2, 0);

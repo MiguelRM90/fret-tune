@@ -15,6 +15,7 @@ export class PitchDetectionService implements OnDestroy {
   private fallbackDetector = new McLeodPitchDetector(DETECTION_TUNING);
   private worker: Worker | null = null;
   private workerBusy = false;
+  private workerBuffer: ArrayBuffer | null = null;
   private sampleBuffer = new Float32Array(0);
   private loopHandle: number | null = null;
 
@@ -28,8 +29,11 @@ export class PitchDetectionService implements OnDestroy {
         this.worker = new Worker(new URL('../audio/pitch-detection.worker', import.meta.url), {
           type: 'module',
         });
-        this.worker.onmessage = ({ data }: MessageEvent<{ estimate: PitchEstimate | null }>) => {
+        this.worker.onmessage = ({ data }: MessageEvent<{ estimate: PitchEstimate | null; buffer?: ArrayBuffer }>) => {
           this.workerBusy = false;
+          if (data.buffer) {
+            this.workerBuffer = data.buffer;
+          }
           this.handleEstimate(data.estimate);
         };
         this.worker.onerror = () => {
@@ -71,6 +75,7 @@ export class PitchDetectionService implements OnDestroy {
     this.audioInput.setFrameSize(frameSize);
     if (this.sampleBuffer.length !== frameSize) {
       this.sampleBuffer = new Float32Array(frameSize);
+      this.workerBuffer = null;
     }
   }
 
@@ -83,14 +88,22 @@ export class PitchDetectionService implements OnDestroy {
 
     if (this.worker && !this.workerBusy) {
       this.workerBusy = true;
-      const copy = new Float32Array(this.sampleBuffer);
+      let sendBuffer: Float32Array;
+      if (this.workerBuffer && this.workerBuffer.byteLength === this.sampleBuffer.byteLength) {
+        sendBuffer = new Float32Array(this.workerBuffer);
+        sendBuffer.set(this.sampleBuffer);
+        this.workerBuffer = null;
+      } else {
+        sendBuffer = new Float32Array(this.sampleBuffer);
+      }
+
       this.worker.postMessage(
         {
-          samples: copy,
+          samples: sendBuffer,
           sampleRate: this.audioInput.sampleRate,
           range,
         },
-        [copy.buffer]
+        [sendBuffer.buffer]
       );
     } else if (!this.worker) {
       const estimate = this.fallbackDetector.detect(this.sampleBuffer, this.audioInput.sampleRate, range);

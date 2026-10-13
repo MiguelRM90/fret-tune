@@ -1,15 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { PwaModalComponent, PwaNumericSliderComponent } from 'pwa-ui-core/components';
 import { INSTRUMENTS, REFERENCE_PITCH_RANGE, TOLERANCE_OPTIONS } from '../../core/constants';
 import { DisplayStyle, InstrumentId, NoteNotation, ToleranceCents, TuningMode } from '../../core/models';
 import { SettingsStore } from '../../core/services/settings.store';
+import { ToggleSwitchComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-settings-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, PwaModalComponent, PwaNumericSliderComponent],
+  imports: [PwaModalComponent, PwaNumericSliderComponent, ToggleSwitchComponent],
   templateUrl: './settings-modal.component.html',
   styleUrl: './settings-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,8 +16,7 @@ import { SettingsStore } from '../../core/services/settings.store';
 export class SettingsModalComponent {
   readonly settingsStore = inject(SettingsStore);
 
-  readonly isOpen = input<boolean>(false);
-  readonly close = output<void>();
+  readonly isOpen = model<boolean>(false);
 
   readonly instruments = INSTRUMENTS;
   readonly referencePitchRange = REFERENCE_PITCH_RANGE;
@@ -28,8 +26,11 @@ export class SettingsModalComponent {
     this.settingsStore.setInstrument(id);
   }
 
-  onTuningSelect(id: string): void {
-    this.settingsStore.setTuning(id);
+  onTuningChange(event: Event): void {
+    const target = event.target as HTMLSelectElement | null;
+    if (target) {
+      this.settingsStore.setTuning(target.value);
+    }
   }
 
   onModeSelect(mode: TuningMode): void {
@@ -52,11 +53,7 @@ export class SettingsModalComponent {
     this.settingsStore.setTolerance(tolerance);
   }
 
-  toggleHaptics(): void {
-    this.settingsStore.setHapticsEnabled(!this.settingsStore.hapticsEnabled());
-  }
-
-  toggleKeepAwake(): void {
-    this.settingsStore.setKeepAwake(!this.settingsStore.keepAwake());
+  closeModal(): void {
+    this.isOpen.set(false);
   }
 }

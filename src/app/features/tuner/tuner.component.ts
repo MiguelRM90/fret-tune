@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TunerStore } from '../../core/services/tuner.store';
 import { SettingsStore } from '../../core/services/settings.store';
 import { NeedleGaugeComponent } from './components/needle-gauge/needle-gauge.component';
@@ -12,7 +11,6 @@ import { MicPermissionComponent } from './components/mic-permission/mic-permissi
   selector: 'app-tuner',
   standalone: true,
   imports: [
-    CommonModule,
     NeedleGaugeComponent,
     StrobeDisplayComponent,
     NoteDisplayComponent,

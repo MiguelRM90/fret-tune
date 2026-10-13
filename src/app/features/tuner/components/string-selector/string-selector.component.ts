@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { NoteNotation, TunerReading, Tuning } from '../../../../core/models';
 import { NoteNamePipe } from '../../../../shared/pipes';
 
@@ -16,7 +15,7 @@ export interface StringItem {
 @Component({
   selector: 'app-string-selector',
   standalone: true,
-  imports: [CommonModule, NoteNamePipe],
+  imports: [NoteNamePipe],
   templateUrl: './string-selector.component.html',
   styleUrl: './string-selector.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

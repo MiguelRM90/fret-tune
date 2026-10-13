@@ -1,8 +1,8 @@
-import { Service, signal } from '@angular/core';
+import { OnDestroy, Service, signal } from '@angular/core';
 import { FrameSource, MicrophoneStatus } from '../models';
 
 @Service()
-export class AudioInputService implements FrameSource {
+export class AudioInputService implements FrameSource, OnDestroy {
   readonly status = signal<MicrophoneStatus>('idle');
   readonly errorMessage = signal<string | null>(null);
 
@@ -14,6 +14,10 @@ export class AudioInputService implements FrameSource {
   private currentFrameSize = 4096;
   private ringBuffer = new Float32Array(0);
   private writePointer = 0;
+
+  ngOnDestroy(): void {
+    this.stop();
+  }
 
   get sampleRate(): number {
     return this.audioContext?.sampleRate ?? 44100;
@@ -144,7 +148,7 @@ export class AudioInputService implements FrameSource {
     this.status.set('idle');
   }
 
-  read(target: Float32Array<ArrayBuffer>): boolean {
+  read(target: Float32Array): boolean {
     if (this.status() !== 'active' || this.ringBuffer.length === 0) {
       return false;
     }

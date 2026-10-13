@@ -37,8 +37,8 @@
 }
 
 .note-display--in-tune .note-letter {
-  color: #10b981;
-  text-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+  color: var(--pwa-success);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--pwa-success) 60%, transparent);
 }
 
 .note-accidental {
@@ -50,7 +50,7 @@
 }
 
 .note-display--in-tune .note-accidental {
-  color: #34d399;
+  color: var(--pwa-success-text);
 }
 
 .note-octave {
@@ -95,12 +95,12 @@
 }
 
 .metric-pill--in-tune {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: #10b981;
+  background: var(--pwa-success-soft);
+  border-color: var(--pwa-success);
 }
 
 .metric-pill--in-tune .metric-pill__value {
-  color: #10b981;
+  color: var(--pwa-success);
   font-weight: 700;
 }
 

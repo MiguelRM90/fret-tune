@@ -9,7 +9,6 @@ import { SettingsModalComponent } from './features/settings/settings-modal.compo
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule,
     PwaToastContainerComponent,
     HeaderComponent,
     TunerComponent,

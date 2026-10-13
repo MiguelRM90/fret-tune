@@ -7,9 +7,11 @@ import { McLeodPitchDetector } from './mcleod-pitch-detector';
 const detector = new McLeodPitchDetector(DETECTION_TUNING);
 
 addEventListener('message', ({ data }: MessageEvent<PitchDetectionRequest>) => {
+  const estimate = detector.detect(data.samples, data.sampleRate, data.range);
   const response: PitchDetectionResponse = {
-    estimate: detector.detect(data.samples, data.sampleRate, data.range),
+    estimate,
+    buffer: data.samples.buffer,
   };
-  postMessage(response);
+  postMessage(response, [data.samples.buffer]);
 });
 

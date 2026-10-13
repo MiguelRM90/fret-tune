@@ -6,17 +6,17 @@
   <div class="gauge-arc">
     <div class="gauge-arc__glow"></div>
     <div class="gauge-scale">
-      @for (tick of tickMarks; track tick) {
+      @for (tick of ticks; track tick.cents) {
         <div
           class="gauge-tick"
-          [class.gauge-tick--center]="tick === 0"
-          [class.gauge-tick--major]="tick % 20 === 0"
-          [style.transform]="'rotate(' + getTickAngle(tick) + 'deg)'"
+          [class.gauge-tick--center]="tick.isCenter"
+          [class.gauge-tick--major]="tick.isMajor"
+          [style.transform]="'rotate(' + tick.angle + 'deg)'"
         >
           <span class="gauge-tick__line"></span>
-          @if (tick === -50 || tick === -20 || tick === 0 || tick === 20 || tick === 50) {
-            <span class="gauge-tick__label" [style.transform]="'rotate(' + -getTickAngle(tick) + 'deg)'">
-              {{ tick === 0 ? '0' : (tick > 0 ? '+' + tick : tick) }}
+          @if (tick.hasLabel) {
+            <span class="gauge-tick__label" [style.transform]="'rotate(' + -tick.angle + 'deg)'">
+              {{ tick.label }}
             </span>
           }
         </div>

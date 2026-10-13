@@ -83,6 +83,10 @@ export class SettingsStore {
     this.settings.update((prev) => ({ ...prev, keepAwake }));
   }
 
+  patchSettings(partial: Partial<TunerSettings>): void {
+    this.settings.update((prev) => ({ ...prev, ...partial }));
+  }
+
   private loadInitialSettings(): TunerSettings {
     if (typeof localStorage === 'undefined') {
       return parseSettings(null);

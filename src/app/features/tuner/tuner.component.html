@@ -87,7 +87,7 @@
           [reading]="tunerStore.reading()"
           [lockedString]="tunerStore.lockedString()"
           [tunedStrings]="tunerStore.tunedStrings()"
-          [playingMidi]="tunerStore.toneGenerator.playingMidi()"
+          [playingMidi]="tunerStore.playingMidi()"
           (selectString)="onSelectString($event)"
           (playTone)="onPlayTone($event)"
           (resetChecklist)="onResetChecklist()"

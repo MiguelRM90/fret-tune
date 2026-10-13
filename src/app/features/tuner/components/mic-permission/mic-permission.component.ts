@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MicrophoneStatus } from '../../../../core/models';
 
 @Component({
   selector: 'app-mic-permission',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './mic-permission.component.html',
   styleUrl: './mic-permission.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

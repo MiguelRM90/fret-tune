@@ -3,7 +3,7 @@
   title="Tuner Settings"
   subtitle="Configure instrument, calibration, and visual preferences"
   maxWidth="32rem"
-  (close)="close.emit()"
+  (close)="closeModal()"
 >
   <div class="settings-body">
     <!-- Instrument Selection -->
@@ -29,8 +29,8 @@
       <div class="pwa-input-group">
         <select
           class="pwa-select"
-          [ngModel]="settingsStore.tuning().id"
-          (ngModelChange)="onTuningSelect($event)"
+          [value]="settingsStore.tuning().id"
+          (change)="onTuningChange($event)"
         >
           @for (tuning of settingsStore.instrument().tunings; track tuning.id) {
             <option [value]="tuning.id">{{ tuning.name }}</option>
@@ -141,44 +141,24 @@
 
     <!-- Extras: Haptics & Wake Lock -->
     <div class="settings-section settings-section--toggles">
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <span class="toggle-title">Haptic Feedback</span>
-          <span class="toggle-desc">Vibrate device briefly when note is locked in tune</span>
-        </div>
-        <button
-          type="button"
-          class="toggle-switch"
-          [class.toggle-switch--on]="settingsStore.hapticsEnabled()"
-          (click)="toggleHaptics()"
-          role="switch"
-          [attr.aria-checked]="settingsStore.hapticsEnabled()"
-        >
-          <span class="toggle-switch__thumb"></span>
-        </button>
-      </div>
+      <app-toggle-switch
+        label="Haptic Feedback"
+        description="Vibrate device briefly when note is locked in tune"
+        [checked]="settingsStore.hapticsEnabled()"
+        (checkedChange)="settingsStore.setHapticsEnabled($event)"
+      ></app-toggle-switch>
 
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <span class="toggle-title">Keep Screen Awake</span>
-          <span class="toggle-desc">Prevent phone screen from sleeping while tuning</span>
-        </div>
-        <button
-          type="button"
-          class="toggle-switch"
-          [class.toggle-switch--on]="settingsStore.keepAwake()"
-          (click)="toggleKeepAwake()"
-          role="switch"
-          [attr.aria-checked]="settingsStore.keepAwake()"
-        >
-          <span class="toggle-switch__thumb"></span>
-        </button>
-      </div>
+      <app-toggle-switch
+        label="Keep Screen Awake"
+        description="Prevent phone screen from sleeping while tuning"
+        [checked]="settingsStore.keepAwake()"
+        (checkedChange)="settingsStore.setKeepAwake($event)"
+      ></app-toggle-switch>
     </div>
   </div>
 
   <div modal-footer>
-    <button type="button" class="pwa-btn pwa-btn--primary" (click)="close.emit()">
+    <button type="button" class="pwa-btn pwa-btn--primary" (click)="closeModal()">
       Done
     </button>
   </div>

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { PwaHeaderComponent } from 'pwa-ui-core/components';
 import { ThemeService } from 'pwa-ui-core/services';
 import { SettingsStore } from '../../../core/services/settings.store';
@@ -7,7 +6,7 @@ import { SettingsStore } from '../../../core/services/settings.store';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, PwaHeaderComponent],
+  imports: [PwaHeaderComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

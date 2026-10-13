@@ -21,6 +21,7 @@ export class TunerStore implements OnDestroy {
   readonly isListening = computed(() => this.audioInput.status() === 'active');
   readonly micStatus = computed(() => this.audioInput.status());
   readonly micError = computed(() => this.audioInput.errorMessage());
+  readonly playingMidi = computed(() => this.toneGenerator.playingMidi());
 
   readonly lockedString = signal<number | null>(null);
   readonly tunedStrings = signal<Readonly<Record<number, boolean>>>({});

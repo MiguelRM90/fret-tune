@@ -13,8 +13,7 @@
   </footer>
 
   <app-settings-modal
-    [isOpen]="isSettingsOpen()"
-    (close)="isSettingsOpen.set(false)"
+    [(isOpen)]="isSettingsOpen"
   ></app-settings-modal>
 
   <pwa-toast-container></pwa-toast-container>

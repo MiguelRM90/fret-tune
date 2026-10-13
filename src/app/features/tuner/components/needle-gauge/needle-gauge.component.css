@@ -36,8 +36,8 @@
 }
 
 .needle-gauge--in-tune .gauge-arc__glow {
-  border-color: #10b981;
-  box-shadow: 0 0 28px rgba(16, 185, 129, 0.45), inset 0 0 24px rgba(16, 185, 129, 0.2);
+  border-color: var(--pwa-success);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--pwa-success) 45%, transparent), inset 0 0 24px color-mix(in srgb, var(--pwa-success) 20%, transparent);
 }
 
 .gauge-scale {
@@ -78,8 +78,8 @@
 .gauge-tick--center .gauge-tick__line {
   height: 18px;
   width: 3px;
-  background-color: #10b981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+  background-color: var(--pwa-success);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--pwa-success) 70%, transparent);
 }
 
 .gauge-tick__label {
@@ -91,7 +91,7 @@
 }
 
 .gauge-tick--center .gauge-tick__label {
-  color: #10b981;
+  color: var(--pwa-success);
   font-weight: 700;
 }
 
@@ -135,8 +135,8 @@
 }
 
 .needle-gauge--in-tune .gauge-needle__beam {
-  background: linear-gradient(to top, #059669, #34d399);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+  background: linear-gradient(to top, var(--pwa-brand-600), var(--pwa-success-text));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--pwa-success) 80%, transparent);
 }
 
 .gauge-needle__tip {
@@ -150,8 +150,8 @@
 }
 
 .needle-gauge--in-tune .gauge-needle__tip {
-  background-color: #34d399;
-  box-shadow: 0 0 12px #34d399;
+  background-color: var(--pwa-success-text);
+  box-shadow: 0 0 12px var(--pwa-success-text);
 }
 
 .gauge-pivot {
@@ -178,8 +178,8 @@
 }
 
 .needle-gauge--in-tune .gauge-pivot__inner {
-  background-color: #10b981;
-  box-shadow: 0 0 8px #10b981;
+  background-color: var(--pwa-success);
+  box-shadow: 0 0 8px var(--pwa-success);
 }
 
 .gauge-status {
@@ -207,7 +207,7 @@
 }
 
 .gauge-status--active {
-  color: #f59e0b;
+  color: var(--pwa-warning);
 }
 
 .gauge-status__center {
@@ -217,7 +217,7 @@
 }
 
 .gauge-status--in-tune {
-  color: #10b981;
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+  color: var(--pwa-success);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--pwa-success) 70%, transparent);
 }
 

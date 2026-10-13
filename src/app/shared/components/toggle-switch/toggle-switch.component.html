@@ -1,0 +1,21 @@
+<div class="toggle-row" (click)="toggle()">
+  <div class="toggle-info">
+    <span class="toggle-title">{{ label() }}</span>
+    @if (description()) {
+      <span class="toggle-desc">{{ description() }}</span>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="toggle-switch"
+    [class.toggle-switch--on]="checked()"
+    role="switch"
+    [attr.aria-checked]="checked()"
+    [attr.aria-label]="label()"
+    (click)="$event.stopPropagation(); toggle()"
+  >
+    <span class="toggle-switch__thumb"></span>
+  </button>
+</div>
+

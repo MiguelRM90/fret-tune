@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { NoteNotation, TunerReading } from '../../../../core/models';
 import { describeNote, formatNote } from '../../../../core/audio/note-naming';
-import { CentsPipe, NoteNamePipe } from '../../../../shared/pipes';
+import { CentsPipe } from '../../../../shared/pipes';
 
 @Component({
   selector: 'app-note-display',
   standalone: true,
-  imports: [CommonModule, CentsPipe],
+  imports: [CentsPipe],
   templateUrl: './note-display.component.html',
   styleUrl: './note-display.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
