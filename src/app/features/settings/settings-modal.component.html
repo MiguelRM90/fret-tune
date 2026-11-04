@@ -139,6 +139,30 @@
       </div>
     </div>
 
+    @if (isDev) {
+      <div class="settings-section">
+        <label class="pwa-label">Pitch Detector (Dev)</label>
+        <div class="pill-group">
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="settingsStore.detector() === 'mpm-fft'"
+            (click)="onDetectorSelect('mpm-fft')"
+          >
+            MPM (FFT)
+          </button>
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="settingsStore.detector() === 'yin'"
+            (click)="onDetectorSelect('yin')"
+          >
+            YIN
+          </button>
+        </div>
+      </div>
+    }
+
     <!-- Extras: Haptics & Wake Lock -->
     <div class="settings-section settings-section--toggles">
       <app-toggle-switch
@@ -163,4 +187,3 @@
     </button>
   </div>
 </pwa-modal>
-

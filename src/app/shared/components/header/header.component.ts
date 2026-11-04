@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { InstallStateService, SettingsStore, SwUpdateCoordinatorService } from '@core/services';
 import { PwaHeaderComponent } from 'pwa-ui-core/components';
 import { ThemeService } from 'pwa-ui-core/services';
-import { SettingsStore } from '../../../core/services/settings.store';
 
 @Component({
   selector: 'app-header',
@@ -14,11 +14,16 @@ import { SettingsStore } from '../../../core/services/settings.store';
 export class HeaderComponent {
   readonly settingsStore = inject(SettingsStore);
   readonly themeService = inject(ThemeService);
+  readonly installState = inject(InstallStateService);
+  readonly swUpdateCoordinator = inject(SwUpdateCoordinatorService);
 
   readonly openSettings = output<void>();
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
   }
-}
 
+  onInstalled(accepted: boolean): void {
+    this.installState.markInstalled(accepted);
+  }
+}

@@ -1,30 +1,49 @@
 import { Service, signal } from '@angular/core';
 
+export interface WakeLockEnvironment {
+  readonly requestWakeLock?: () => Promise<WakeLockSentinel>;
+}
+
 @Service()
 export class WakeLockService {
   readonly isActive = signal<boolean>(false);
+  readonly requestCount = signal<number>(0);
 
   private sentinel: WakeLockSentinel | null = null;
-  private readonly releaseListener = () => {
+  private env: WakeLockEnvironment = {};
+
+  private readonly releaseListener = (): void => {
     this.sentinel = null;
     this.isActive.set(false);
   };
 
+  configureEnvironment(env: WakeLockEnvironment): void {
+    this.env = env;
+  }
+
   async request(): Promise<boolean> {
-    if (this.sentinel) {
+    if (this.sentinel && !(this.sentinel as { released?: boolean }).released) {
       return true;
     }
 
-    if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) {
+    const requestFn =
+      this.env.requestWakeLock ??
+      (typeof navigator !== 'undefined' && 'wakeLock' in navigator && navigator.wakeLock
+        ? () => navigator.wakeLock.request('screen')
+        : undefined);
+
+    if (!requestFn) {
       return false;
     }
 
     try {
-      this.sentinel = await navigator.wakeLock.request('screen');
+      this.requestCount.update((n) => n + 1);
+      this.sentinel = await requestFn();
       this.sentinel.addEventListener('release', this.releaseListener);
       this.isActive.set(true);
       return true;
     } catch {
+      this.sentinel = null;
       this.isActive.set(false);
       return false;
     }
@@ -39,4 +58,3 @@ export class WakeLockService {
     this.isActive.set(false);
   }
 }
-

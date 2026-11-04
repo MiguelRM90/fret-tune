@@ -5,6 +5,7 @@
 /coverage/
 /.angular/
 .angular/
+/public/worklets/
 
 # Dependencies
 /node_modules/
@@ -22,4 +23,3 @@
 # Logs
 npm-debug.log*
 pnpm-debug.log*
-

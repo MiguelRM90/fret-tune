@@ -5,14 +5,18 @@
   "author": "MiguelRM90",
   "license": "MIT",
   "private": true,
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@12.6.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build --configuration production",
-    "build:gh-pages": "ng build --configuration production --base-href /fret-tune/",
-    "watch": "ng build --watch --configuration development",
-    "test": "esbuild \"src/**/*.spec.ts\" --outdir=dist/test-dist --bundle --platform=node --format=esm --packages=external --out-extension:.js=.mjs --log-level=warning && node --test \"dist/test-dist/**/*.spec.mjs\""
+    "build:worklets": "esbuild src/app/core/workers/capture.worklet.ts --outfile=public/worklets/capture.worklet.js --bundle --format=esm --target=es2022 --log-level=warning",
+    "start": "esbuild src/app/core/workers/capture.worklet.ts --outfile=public/worklets/capture.worklet.js --bundle --format=esm --target=es2022 --log-level=warning && ng serve",
+    "build": "esbuild src/app/core/workers/capture.worklet.ts --outfile=public/worklets/capture.worklet.js --bundle --format=esm --target=es2022 --log-level=warning && ng build --configuration production && node scripts/verify-security-and-pwa.mjs --all",
+    "build:gh-pages": "esbuild src/app/core/workers/capture.worklet.ts --outfile=public/worklets/capture.worklet.js --bundle --format=esm --target=es2022 --log-level=warning && ng build --configuration production --base-href /fret-tune/ && node scripts/verify-security-and-pwa.mjs --all",
+    "watch": "esbuild src/app/core/workers/capture.worklet.ts --outfile=public/worklets/capture.worklet.js --bundle --format=esm --target=es2022 --log-level=warning && ng build --watch --configuration development",
+    "verify:security": "node scripts/verify-security-and-pwa.mjs",
+    "verify:pwa": "node scripts/verify-security-and-pwa.mjs --all",
+    "test": "node scripts/verify-security-and-pwa.mjs && esbuild \"src/**/*.spec.ts\" --outdir=dist/test-dist --bundle --platform=node --format=esm --packages=external --out-extension:.js=.mjs --log-level=warning && node --test \"dist/test-dist/**/*.spec.mjs\"",
+    "bench": "esbuild \"src/**/*.bench.ts\" --outdir=dist/bench-dist --bundle --platform=node --format=esm --packages=external --out-extension:.js=.mjs --log-level=warning && node \"dist/bench-dist/app/core/dsp/mcleod-pitch-detector.bench.mjs\""
   },
   "dependencies": {
     "@angular/common": "^22.2.0",
@@ -34,4 +38,3 @@
     "typescript": "~6.0.2"
   }
 }
-

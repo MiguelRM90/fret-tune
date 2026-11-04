@@ -4,6 +4,7 @@
       <app-mic-permission
         [status]="tunerStore.micStatus()"
         [errorMessage]="tunerStore.micError()"
+        [permissionGranted]="tunerStore.isPermissionGranted()"
         (requestAccess)="onStartListening()"
       ></app-mic-permission>
     </div>

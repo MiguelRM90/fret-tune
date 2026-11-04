@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { NoteNotation, TunerReading, Tuning } from '../../../../core/models';
-import { NoteNamePipe } from '../../../../shared/pipes';
+import { NoteNotation, TunerReading, Tuning } from '@core/models';
+import { NoteNamePipe } from '@shared/pipes';
 
 export interface StringItem {
   readonly index: number;

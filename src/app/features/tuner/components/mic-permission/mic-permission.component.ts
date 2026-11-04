@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { MicrophoneStatus } from '../../../../core/models';
+import { MicrophoneStatus } from '@core/models';
 
 @Component({
   selector: 'app-mic-permission',
@@ -12,7 +12,7 @@ import { MicrophoneStatus } from '../../../../core/models';
 export class MicPermissionComponent {
   readonly status = input.required<MicrophoneStatus>();
   readonly errorMessage = input<string | null>(null);
+  readonly permissionGranted = input<boolean>(false);
 
   readonly requestAccess = output<void>();
 }
-

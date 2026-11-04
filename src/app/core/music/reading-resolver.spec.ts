@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { INSTRUMENTS } from '../constants';
+import { INSTRUMENTS } from './instruments';
 import { midiToFrequency } from './music-math';
 import { ReadingContext, findClosestString, resolveReading } from './reading-resolver';
 

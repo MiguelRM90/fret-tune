@@ -48,7 +48,11 @@
                 }
               ],
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json",
+              "subresourceIntegrity": true,
+              "security": {
+                "autoCsp": true
+              }
             },
             "development": {
               "optimization": false,

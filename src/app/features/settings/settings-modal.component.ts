@@ -1,9 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, isDevMode, model } from '@angular/core';
+import { INSTRUMENTS, REFERENCE_PITCH_RANGE, TOLERANCE_OPTIONS } from '@core/constants';
+import {
+  DetectorStrategyId,
+  DisplayStyle,
+  InstrumentId,
+  NoteNotation,
+  ToleranceCents,
+  TuningMode,
+} from '@core/models';
+import { SettingsStore } from '@core/services';
+import { ToggleSwitchComponent } from '@shared/components';
 import { PwaModalComponent, PwaNumericSliderComponent } from 'pwa-ui-core/components';
-import { INSTRUMENTS, REFERENCE_PITCH_RANGE, TOLERANCE_OPTIONS } from '../../core/constants';
-import { DisplayStyle, InstrumentId, NoteNotation, ToleranceCents, TuningMode } from '../../core/models';
-import { SettingsStore } from '../../core/services/settings.store';
-import { ToggleSwitchComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-settings-modal',
@@ -21,6 +28,7 @@ export class SettingsModalComponent {
   readonly instruments = INSTRUMENTS;
   readonly referencePitchRange = REFERENCE_PITCH_RANGE;
   readonly toleranceOptions = TOLERANCE_OPTIONS;
+  readonly isDev = isDevMode();
 
   onInstrumentSelect(id: InstrumentId): void {
     this.settingsStore.setInstrument(id);
@@ -51,6 +59,10 @@ export class SettingsModalComponent {
 
   onToleranceSelect(tolerance: ToleranceCents): void {
     this.settingsStore.setTolerance(tolerance);
+  }
+
+  onDetectorSelect(detector: DetectorStrategyId): void {
+    this.settingsStore.setDetector(detector);
   }
 
   closeModal(): void {

@@ -1,38 +1,68 @@
-import { OnDestroy, Service, computed, effect, inject, signal } from '@angular/core';
-import { midiToFrequency, resolveReading } from '../audio';
-import { IN_TUNE_LOCK_MS } from '../constants';
-import { TunerReading } from '../models';
-import { AudioInputService } from './audio-input.service';
-import { HapticsService } from './haptics.service';
-import { PitchDetectionService } from './pitch-detection.service';
+import {
+  Injector,
+  OnDestroy,
+  Service,
+  Signal,
+  computed,
+  effect,
+  inject,
+  linkedSignal,
+} from '@angular/core';
+import { AUDIO_OUTPUT, AudioEngine, AudioLifecycleService, PITCH_SOURCE } from '../audio-engine';
+import { InTuneDetector, InTuneState } from '../dsp';
+import { AudioOutput, MicrophoneStatus, PitchSource, TunerReading } from '../models';
+import { midiToFrequency, resolveReading } from '../music';
+import { InstallStateService } from './install-state.service';
+import { SessionEffectsService } from './session-effects.service';
 import { SettingsStore } from './settings.store';
-import { ToneGeneratorService } from './tone-generator.service';
-import { WakeLockService } from './wake-lock.service';
+import { StringChecklistStore } from './string-checklist.store';
+import { SwUpdateCoordinatorService } from './sw-update-coordinator.service';
+
+interface InTuneEvaluationInput {
+  readonly reading: TunerReading | null;
+  readonly timestamp: number;
+  readonly tolerance: number;
+  readonly active: boolean;
+}
+
+const IDLE_IN_TUNE_STATE: InTuneState = {
+  isInTune: false,
+  lockedStringIndex: null,
+  justLocked: false,
+};
 
 @Service()
 export class TunerStore implements OnDestroy {
-  readonly audioInput = inject(AudioInputService);
-  readonly pitchDetection = inject(PitchDetectionService);
-  readonly toneGenerator = inject(ToneGeneratorService);
-  readonly haptics = inject(HapticsService);
-  readonly wakeLock = inject(WakeLockService);
-  readonly settingsStore = inject(SettingsStore);
+  private readonly audioEngine = inject(AudioEngine);
+  private readonly pitchSource: PitchSource = inject(PITCH_SOURCE);
+  private readonly audioOutput: AudioOutput = inject(AUDIO_OUTPUT);
+  private readonly settingsStore = inject(SettingsStore);
+  private readonly checklistStore = inject(StringChecklistStore);
+  private readonly sessionEffects = inject(SessionEffectsService);
+  private readonly swUpdateCoordinator = inject(SwUpdateCoordinatorService, { optional: true });
+  private readonly inTuneDetector = new InTuneDetector();
+  private readonly unsubscribeCallbacks: Array<() => void> = [];
 
-  readonly isListening = computed(() => this.audioInput.status() === 'active');
-  readonly micStatus = computed(() => this.audioInput.status());
-  readonly micError = computed(() => this.audioInput.errorMessage());
-  readonly playingMidi = computed(() => this.toneGenerator.playingMidi());
+  readonly micStatus: Signal<MicrophoneStatus> = this.audioEngine.status;
+  readonly micError: Signal<string | null> = this.audioEngine.errorMessage;
+  readonly permissionState: Signal<PermissionState | 'unknown'> = this.audioEngine.permissionState;
+  readonly isPermissionGranted: Signal<boolean> = computed(
+    () => this.audioEngine.permissionState() === 'granted',
+  );
+  readonly isListening: Signal<boolean> = computed(() => this.micStatus() === 'active');
+  readonly playingMidi: Signal<number | null> = computed(() => this.audioOutput.playingMidi());
+  readonly isToneGated: Signal<boolean> = computed(() => this.audioOutput.isGated());
+  readonly lockedString: Signal<number | null> = this.checklistStore.lockedString;
+  readonly tunedStrings: Signal<Readonly<Record<number, boolean>>> =
+    this.checklistStore.tunedStrings;
 
-  readonly lockedString = signal<number | null>(null);
-  readonly tunedStrings = signal<Readonly<Record<number, boolean>>>({});
-  readonly isInTune = signal<boolean>(false);
+  readonly reading: Signal<TunerReading | null> = computed<TunerReading | null>(() => {
+    if (!this.isListening() || this.isToneGated()) {
+      return null;
+    }
 
-  private inTuneSince: number | null = null;
-  private hasVibratedForCurrentLock = false;
-
-  readonly reading = computed<TunerReading | null>(() => {
-    const freq = this.pitchDetection.smoothedFrequency();
-    if (freq === null || !this.isListening()) {
+    const freq = this.pitchSource.smoothedFrequency();
+    if (freq === null) {
       return null;
     }
 
@@ -40,67 +70,126 @@ export class TunerStore implements OnDestroy {
       referencePitch: this.settingsStore.referencePitch(),
       mode: this.settingsStore.mode(),
       tuning: this.settingsStore.tuning(),
-      lockedString: this.lockedString(),
+      lockedString: this.checklistStore.lockedString(),
       tolerance: this.settingsStore.tolerance(),
     });
   });
 
+  private readonly inTuneState = linkedSignal<InTuneEvaluationInput, InTuneState>({
+    source: () => ({
+      reading: this.reading(),
+      timestamp: this.pitchSource.pitchFrame()?.timestamp ?? 0,
+      tolerance: this.settingsStore.tolerance(),
+      active: this.isListening() && !this.isToneGated(),
+    }),
+    computation: (input) => {
+      if (!input.active || !input.reading) {
+        this.inTuneDetector.reset();
+        return IDLE_IN_TUNE_STATE;
+      }
+      return this.inTuneDetector.push(input.reading, input.timestamp, input.tolerance);
+    },
+  });
+
+  readonly isInTune: Signal<boolean> = computed(() => this.inTuneState().isInTune);
+
+  private readonly autoTunedStringIndex: Signal<number | null> = computed(() => {
+    const state = this.inTuneState();
+    return state.isInTune ? state.lockedStringIndex : null;
+  });
+
+  private readonly justLocked: Signal<boolean> = computed(() => this.inTuneState().justLocked);
+
   constructor() {
-    effect(() => {
-      const reading = this.reading();
-      this.handleInTuneState(reading);
+    const lifecycle = inject(AudioLifecycleService, { optional: true });
+    inject(InstallStateService, { optional: true });
+
+    lifecycle?.onForegroundResume(() => {
+      void this.sessionEffects.handleVisibilityChange('visible');
     });
 
-    effect(() => {
-      const instrument = this.settingsStore.instrument();
-      if (this.isListening()) {
-        this.pitchDetection.updateProfile(instrument.analysis, instrument.analysis.frameSize);
-      }
-      this.lockedString.set(null);
-      this.tunedStrings.set({});
+    this.checklistStore.bindAutoTunedString(this.autoTunedStringIndex);
+    this.sessionEffects.bind({
+      isListening: this.isListening,
+      justLocked: this.justLocked,
     });
 
-    effect(() => {
-      const keepAwake = this.settingsStore.keepAwake();
-      if (this.isListening() && keepAwake) {
-        this.wakeLock.request();
-      } else if (!keepAwake) {
-        this.wakeLock.release();
-      }
-    });
+    if (this.pitchSource.onFrame) {
+      this.unsubscribeCallbacks.push(
+        this.pitchSource.onFrame(() => {
+          const state = this.inTuneState();
+          this.tunedStrings();
+          if (state.justLocked) {
+            this.sessionEffects.notifyJustLocked();
+          }
+        }),
+      );
+    }
+
+    this.unsubscribeCallbacks.push(
+      this.settingsStore.onInstrumentChange((instrument) => {
+        if (this.isListening()) {
+          this.pitchSource.updateProfile(instrument.analysis);
+        }
+      }),
+      this.settingsStore.onDetectorChange((detector) => {
+        this.pitchSource.setDetector(detector);
+      }),
+    );
+
+    const injector = inject(Injector, { optional: true });
+    if (injector) {
+      try {
+        effect(
+          () => {
+            const gated = this.isToneGated();
+            this.pitchSource.setGate(gated);
+          },
+          { injector },
+        );
+      } catch {}
+    }
   }
 
   async startListening(): Promise<boolean> {
-    const success = await this.audioInput.start();
+    const status = this.micStatus();
+    const success =
+      status === 'suspended' || status === 'interrupted'
+        ? await this.audioEngine.resumeFromSuspension()
+        : await this.audioEngine.start();
+
     if (success) {
       const instrument = this.settingsStore.instrument();
-      this.pitchDetection.start(instrument.analysis, instrument.analysis.frameSize);
-      if (this.settingsStore.keepAwake()) {
-        this.wakeLock.request();
-      }
+      this.pitchSource.start(instrument.analysis, this.settingsStore.detector());
+      this.sessionEffects.notifyStartListening();
     }
     return success;
   }
 
+  async pauseListening(): Promise<void> {
+    await this.audioEngine.pause();
+    this.inTuneDetector.reset();
+    this.sessionEffects.notifyStopListening();
+  }
+
   stopListening(): void {
-    this.pitchDetection.stop();
-    this.audioInput.stop();
-    this.wakeLock.release();
-    this.isInTune.set(false);
-    this.inTuneSince = null;
-    this.hasVibratedForCurrentLock = false;
+    this.pitchSource.stop();
+    this.audioEngine.stop();
+    this.inTuneDetector.reset();
+    this.sessionEffects.notifyStopListening();
+    void this.swUpdateCoordinator?.completeDeferredUpdateIfIdle();
   }
 
   async toggleListening(): Promise<void> {
     if (this.isListening()) {
-      this.stopListening();
+      await this.pauseListening();
     } else {
       await this.startListening();
     }
   }
 
   selectString(index: number | null): void {
-    this.lockedString.set(this.lockedString() === index ? null : index);
+    this.checklistStore.selectString(index);
   }
 
   playStringReference(index: number): void {
@@ -108,44 +197,19 @@ export class TunerStore implements OnDestroy {
     const midi = tuning.strings[index];
     if (midi !== undefined) {
       const freq = midiToFrequency(midi, this.settingsStore.referencePitch());
-      this.toneGenerator.play(freq, midi);
+      this.pitchSource.setGate(true);
+      this.audioOutput.play(freq, midi);
     }
   }
 
   resetTunedStrings(): void {
-    this.tunedStrings.set({});
-  }
-
-  private handleInTuneState(reading: TunerReading | null): void {
-    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
-
-    if (reading && reading.direction === 'in-tune') {
-      if (this.inTuneSince === null) {
-        this.inTuneSince = now;
-      }
-
-      if (now - this.inTuneSince >= IN_TUNE_LOCK_MS) {
-        this.isInTune.set(true);
-
-        if (reading.stringIndex !== null) {
-          const idx = reading.stringIndex;
-          this.tunedStrings.update((prev) => ({ ...prev, [idx]: true }));
-        }
-
-        if (!this.hasVibratedForCurrentLock && this.settingsStore.hapticsEnabled()) {
-          this.haptics.inTuneSuccess();
-          this.hasVibratedForCurrentLock = true;
-        }
-      }
-    } else {
-      this.inTuneSince = null;
-      this.isInTune.set(false);
-      this.hasVibratedForCurrentLock = false;
-    }
+    this.checklistStore.resetTunedStrings();
   }
 
   ngOnDestroy(): void {
+    for (const unsub of this.unsubscribeCallbacks) {
+      unsub();
+    }
     this.stopListening();
   }
 }
-

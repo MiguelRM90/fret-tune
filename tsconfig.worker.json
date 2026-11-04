@@ -5,6 +5,10 @@
     "lib": ["ES2022", "webworker"],
     "types": []
   },
-  "include": ["src/**/*.worker.ts"]
+  "include": [
+    "src/**/*.worker.ts",
+    "src/app/core/dsp/**/*.ts",
+    "src/app/core/music/**/*.ts"
+  ],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.bench.ts"]
 }
-

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 960" width="540" height="960">
+  <rect width="540" height="960" fill="#020617" />
+  <rect x="24" y="24" width="492" height="64" rx="16" fill="#0f172a" stroke="#1e293b" />
+  <text x="52" y="64" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="24" font-weight="800">FretTune</text>
+  <rect x="24" y="116" width="492" height="460" rx="24" fill="#0f172a" stroke="#10b981" stroke-width="2" />
+  <text x="270" y="230" text-anchor="middle" fill="#10b981" font-family="system-ui, sans-serif" font-size="96" font-weight="800">A2</text>
+  <text x="270" y="275" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="22">110.0 Hz • +0.0 cents</text>
+  <path d="M110 470 A160 160 0 0 1 430 470" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+  <line x1="270" y1="470" x2="270" y2="330" stroke="#10b981" stroke-width="6" stroke-linecap="round" />
+  <circle cx="270" cy="470" r="12" fill="#10b981" />
+  <rect x="24" y="604" width="492" height="310" rx="24" fill="#0f172a" stroke="#1e293b" />
+  <text x="52" y="650" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="18" font-weight="600">Guitar • Standard (E A D G B E)</text>
+</svg>

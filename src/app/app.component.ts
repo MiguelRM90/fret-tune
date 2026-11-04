@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { SettingsModalComponent } from '@features/settings';
+import { TunerComponent } from '@features/tuner';
+import { HeaderComponent } from '@shared/components';
 import { PwaToastContainerComponent } from 'pwa-ui-core/components';
-import { HeaderComponent } from './shared/components/header/header.component';
-import { TunerComponent } from './features/tuner/tuner.component';
-import { SettingsModalComponent } from './features/settings/settings-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -21,4 +20,3 @@ import { SettingsModalComponent } from './features/settings/settings-modal.compo
 export class AppComponent {
   readonly isSettingsOpen = signal<boolean>(false);
 }
-

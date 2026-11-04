@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { TunerReading } from '../../../../core/models';
-import { clamp } from '../../../../core/audio/music-math';
-import { DISPLAY_RANGE_CENTS } from '../../../../core/constants';
+import { DISPLAY_RANGE_CENTS } from '@core/constants';
+import { TunerReading } from '@core/models';
+import { clamp } from '@core/music';
 
 export interface GaugeTick {
   readonly cents: number;

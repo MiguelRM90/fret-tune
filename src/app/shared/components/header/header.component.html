@@ -3,7 +3,8 @@
   [subtitle]="settingsStore.instrument().name + ' • ' + settingsStore.tuning().name"
   badgeText="Offline"
   [showNetworkStatus]="false"
-  [showInstallButton]="true"
+  [showInstallButton]="!installState.isStandalone() && installState.canInstall()"
+  (installed)="onInstalled($event)"
 >
   <div header-logo class="header-logo" aria-hidden="true">
     <svg class="header-logo__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor">

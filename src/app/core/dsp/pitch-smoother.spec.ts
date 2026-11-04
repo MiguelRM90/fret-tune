@@ -1,16 +1,21 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { SMOOTHING } from '../constants';
-import { centsBetween } from './music-math';
+import { centsBetween } from '../music';
 import { PitchSmoother } from './pitch-smoother';
 
 const FRAME_MS = 30;
 
-function feed(smoother: PitchSmoother, frequencies: readonly (number | null)[], startAt = 0): (number | null)[] {
-  return frequencies.map((frequency, i) => smoother.push(frequency, startAt + i * FRAME_MS));
+function feed(
+  smoother: PitchSmoother,
+  frequencies: readonly (number | null)[],
+  startAt = 0,
+  stepMs = FRAME_MS,
+): (number | null)[] {
+  return frequencies.map((frequency, i) => smoother.push(frequency, startAt + i * stepMs));
 }
 
-describe('PitchSmoother', () => {
+describe('PitchSmoother (time-based)', () => {
   it('returns null before any valid pitch', () => {
     assert.equal(new PitchSmoother(SMOOTHING).push(null, 0), null);
   });
@@ -45,6 +50,39 @@ describe('PitchSmoother', () => {
     const smoother = new PitchSmoother(SMOOTHING);
     feed(smoother, [196, 196, 196]);
     assert.equal(smoother.push(null, 60 + SMOOTHING.holdMs + 1), null);
+  });
+
+  it('keeps needle settling time for a 10-cent step within ±10% between 60 Hz and 120 Hz cadences', () => {
+    const f0 = 440;
+    const f1 = 440 * 2 ** (10 / 1200);
+
+    function measureSettlingTimeMs(hz: number): number {
+      const dt = 1000 / hz;
+      const smoother = new PitchSmoother(SMOOTHING);
+      let t = 0;
+      for (let i = 0; i < 10; i++) {
+        smoother.push(f0, t);
+        t += dt;
+      }
+      const stepStart = t;
+      for (let i = 0; i < 200; i++) {
+        t += dt;
+        const out = smoother.push(f1, t);
+        if (out !== null && Math.abs(centsBetween(out, f1)) <= 1.0) {
+          return t - stepStart;
+        }
+      }
+      return Infinity;
+    }
+
+    const settle60Ms = measureSettlingTimeMs(60);
+    const settle120Ms = measureSettlingTimeMs(120);
+    const relativeDiff = Math.abs(settle60Ms - settle120Ms) / settle60Ms;
+
+    assert.ok(
+      relativeDiff <= 0.1,
+      `Expected settling times within 10%, got 60Hz=${settle60Ms.toFixed(1)}ms vs 120Hz=${settle120Ms.toFixed(1)}ms (diff=${(relativeDiff * 100).toFixed(1)}%)`,
+    );
   });
 });
 

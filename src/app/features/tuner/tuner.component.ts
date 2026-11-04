@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
-import { TunerStore } from '../../core/services/tuner.store';
-import { SettingsStore } from '../../core/services/settings.store';
+import { SettingsStore, TunerStore } from '@core/services';
+import { MicPermissionComponent } from './components/mic-permission/mic-permission.component';
 import { NeedleGaugeComponent } from './components/needle-gauge/needle-gauge.component';
-import { StrobeDisplayComponent } from './components/strobe-display/strobe-display.component';
 import { NoteDisplayComponent } from './components/note-display/note-display.component';
 import { StringSelectorComponent } from './components/string-selector/string-selector.component';
-import { MicPermissionComponent } from './components/mic-permission/mic-permission.component';
+import { StrobeDisplayComponent } from './components/strobe-display/strobe-display.component';
 
 @Component({
   selector: 'app-tuner',
@@ -57,4 +56,3 @@ export class TunerComponent {
     this.tunerStore.resetTunedStrings();
   }
 }
-

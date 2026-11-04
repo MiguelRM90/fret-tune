@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { formatNote } from '../../core/audio/note-naming';
-import { NoteNotation } from '../../core/models';
+import { NoteNotation } from '@core/models';
+import { formatNote } from '@core/music';
 
 @Pipe({
   name: 'noteName',
@@ -14,4 +14,3 @@ export class NoteNamePipe implements PipeTransform {
     return formatNote(midi, notation, withOctave);
   }
 }
-

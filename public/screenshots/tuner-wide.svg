@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800">
+  <rect width="1280" height="800" fill="#020617" />
+  <rect x="40" y="32" width="1200" height="64" rx="16" fill="#0f172a" stroke="#1e293b" />
+  <text x="76" y="72" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="26" font-weight="800">FretTune — Precision Chromatic &amp; Strobe Tuner</text>
+  <rect x="40" y="124" width="740" height="620" rx="24" fill="#0f172a" stroke="#10b981" stroke-width="2" />
+  <text x="410" y="280" text-anchor="middle" fill="#10b981" font-family="system-ui, sans-serif" font-size="120" font-weight="800">E2</text>
+  <text x="410" y="335" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="24">82.41 Hz • In Tune</text>
+  <path d="M190 580 A220 220 0 0 1 630 580" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round" />
+  <line x1="410" y1="580" x2="410" y2="380" stroke="#10b981" stroke-width="8" stroke-linecap="round" />
+  <circle cx="410" cy="580" r="14" fill="#10b981" />
+  <rect x="810" y="124" width="430" height="620" rx="24" fill="#0f172a" stroke="#1e293b" />
+  <text x="846" y="176" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="22" font-weight="700">Guided Strings Checklist</text>
+</svg>

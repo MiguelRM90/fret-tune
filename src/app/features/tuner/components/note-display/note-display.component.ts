@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { NoteNotation, TunerReading } from '../../../../core/models';
-import { describeNote, formatNote } from '../../../../core/audio/note-naming';
-import { CentsPipe } from '../../../../shared/pipes';
+import { NoteNotation, TunerReading } from '@core/models';
+import { describeNote, formatNote } from '@core/music';
+import { CentsPipe } from '@shared/pipes';
 
 @Component({
   selector: 'app-note-display',

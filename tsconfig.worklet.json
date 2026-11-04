@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/worklet",
+    "lib": ["ES2022", "webworker"],
+    "types": []
+  },
+  "files": ["src/app/core/workers/capture.worklet.ts"]
+}
