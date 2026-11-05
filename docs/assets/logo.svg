@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="iconBg512" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#020617" />
+    </radialGradient>
+    <linearGradient id="pickGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="glow512" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#iconBg512)" />
+  <g filter="url(#glow512)">
+    <path d="M256 64 C144 64 80 144 80 256 C80 376 192 456 256 464 C320 456 432 376 432 256 C432 144 368 64 256 64 Z" fill="url(#pickGrad512)" />
+  </g>
+  <circle cx="256" cy="240" r="56" fill="#020617" />
+  <circle cx="256" cy="240" r="42" fill="#0f172a" />
+  <circle cx="256" cy="240" r="16" fill="#34d399" />
+  <path d="M256 144 V184 M256 296 V384" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+  <path d="M160 240 A96 96 0 0 1 352 240" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-dasharray="10 16" />
+</svg>
+

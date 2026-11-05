@@ -26,8 +26,7 @@ declare const sampleRate: number;
 
 export class CaptureWorkletProcessor extends AudioWorkletProcessor {
   private readonly blockSize = WORKLET_BLOCK_SIZE;
-  private readonly pool: Float32Array[] = [];
-  private poolTop = 0;
+  private readonly freeBuffers: Float32Array[] = [];
   private activeBuffer: Float32Array;
   private writeOffset = 0;
   private workerPort: MessagePort | null = null;
@@ -35,10 +34,9 @@ export class CaptureWorkletProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     for (let i = 0; i < WORKLET_POOL_SIZE; i++) {
-      this.pool.push(new Float32Array(this.blockSize));
+      this.freeBuffers.push(new Float32Array(this.blockSize));
     }
-    this.poolTop = WORKLET_POOL_SIZE - 1;
-    this.activeBuffer = this.pool[this.poolTop];
+    this.activeBuffer = this.freeBuffers.pop() as Float32Array;
 
     this.port.onmessage = (event: MessageEvent<WorkletInboundMessage>) => {
       this.handleInbound(event.data);
@@ -91,9 +89,8 @@ export class CaptureWorkletProcessor extends AudioWorkletProcessor {
     }
 
     if (message.type === 'recycle' && message.buffer.byteLength === this.blockSize * 4) {
-      if (this.poolTop + 1 < this.pool.length) {
-        this.poolTop++;
-        this.pool[this.poolTop] = new Float32Array(message.buffer);
+      if (this.freeBuffers.length < WORKLET_POOL_SIZE) {
+        this.freeBuffers.push(new Float32Array(message.buffer));
       }
     }
   }
@@ -102,23 +99,25 @@ export class CaptureWorkletProcessor extends AudioWorkletProcessor {
     const targetPort = this.workerPort ?? this.port;
     const frameNow = typeof currentFrame === 'number' ? currentFrame : 0;
     const rateNow = typeof sampleRate === 'number' ? sampleRate : 48000;
+    this.writeOffset = 0;
 
-    if (this.poolTop > 0) {
-      const outgoing = this.activeBuffer;
-      this.poolTop--;
-      this.activeBuffer = this.pool[this.poolTop];
-      this.writeOffset = 0;
-
-      const payload: WorkletOutboundMessage = {
-        type: 'samples',
-        samples: outgoing,
-        currentFrame: frameNow,
-        sampleRate: rateNow,
-      };
-      targetPort.postMessage(payload, [outgoing.buffer]);
-    } else {
-      this.writeOffset = 0;
+    // The outgoing buffer is transferred (detached), so it must never be referenced again:
+    // it only returns to the pool through a 'recycle' message. With no free buffer, the block is dropped.
+    const nextBuffer = this.freeBuffers.pop();
+    if (!nextBuffer) {
+      return;
     }
+
+    const outgoing = this.activeBuffer;
+    this.activeBuffer = nextBuffer;
+
+    const payload: WorkletOutboundMessage = {
+      type: 'samples',
+      samples: outgoing,
+      currentFrame: frameNow,
+      sampleRate: rateNow,
+    };
+    targetPort.postMessage(payload, [outgoing.buffer]);
   }
 }
 
